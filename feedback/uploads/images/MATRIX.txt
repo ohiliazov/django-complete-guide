@@ -1,0 +1,117 @@
+SOLID
+
+multiprocessing/multithreading/ +++
+db ACID, nosql +++
+descriptors ++
+garbage collection ++
+data structures - create competency matrix
+architecture - create competency matrix
+http
+owasp
+
+
+OWASP:
+A01:2021 – Broken Access Control - user can act outside intended permissions - deny by default
+A02:2021 – Cryptographic Failures - CWE-259: Use of Hard-coded Password, CWE-327: Broken or Risky Crypto Algorithm, and CWE-331 Insufficient Entropy
+A03:2021 – Injection
+A04:2021 – Insecure Design
+A05:2021 – Security Misconfiguration
+A06:2021 – Vulnerable and Outdated Components
+A07:2021 – Identification and Authentication Failures - weak passwords, incorrect recovery, no MFA, exposure/reuse of session id in url
+A08:2021 – Software and Data Integrity Failures - use only trusted repositories, check signature
+A09:2021 – Security Logging and Monitoring Failures - insufficient or inadequate logging
+A10:2021 – Server-Side Request Forgery (SSRF) - enforce the URL schema, port, and destination with a positive allow list
+
+
+Multiprocessing vs. Multithreading:
+
+The term CPU-bound describes a scenario where the execution of a task or program is highly dependent on the CPU.
+In a CPU-bound environment, most times, the processor is the only component being used for execution.
+CPU-bound operations tend to have few and long CPU bursts.
+Applications that usually require tons of calculations are a classic example.
+LOW PRIO - prevent resource waste
+
+
+In contrast, a task or program is I/O bound if its execution is dependent on the input-output system and its resources, such as disk drives and peripheral devices.
+I/O bound operations are characterized by many and fewer CPU bursts.
+Any application that involves reading and writing data from an input-output system, as well as waiting for information, is considered I/O bound.
+HIGH PRIO - better resource usage
+
+Some programs or tasks are both CPU and I/O bound.
+
+
+Multiprocessing:
+ - CPU-bound operations: heavy mathematical operations, e.g. ML model training.
+ - More overhead: each process replicates parent process code and data, run in different registers and have their own stack
+ - Might be used for IO-bound tasks, but with higher CPU utilization
+ - maxtasksperchild - because processes may accumulate resources without release
+ - current_process() -> returns current info about process where the code is running
+
+Multithreading:
+ - IO-bound operations: reading from files
+ - Less overhead: each thread shares the same code and data, but run in different registers and have their own stack
+ - Only one thread at a time is active: worse performance for CPU-bound tasks
+ - use Lock() for handling common resources
+
+AsyncIO:
+ - context switching in
+
+ACID:
+
+Атомарність - транзакція має виконуватись повністю або не виконуватись зовсім.
+Узгодженість - дані узгоджені до та після транзакції.
+Ізоляція - проміжний стан транзакції невидимий для інших транзакцій, одночасні транзакції виглядають серіалізованими.
+Стійкість, довговічність - після успішного завершення транзації, зміни зберігаються та не можуть бути скасовані, навіть у разі помилки системи.
+
+Atomicity - all changes to data are performed as if they are a single operation. ALL OR NONE.
+Example: transfer funds from one account to another.
+
+Consistency - data is in a consistent state when a transaction starts and when it ends.
+Example: total value of funds is the same at the start and at the end of transaction.
+
+Isolation - the intermediate state of a transaction is invisible to other transactions. As a result, transactions that run concurrently appear to be serialized.
+Example: another transaction MUST see transferred funds either in one or another acount.
+
+Durability - after a transaction successfully completes, changes to data persist and are not undone, even in the event of a system failure.
+Example: transferred funds are not reversed.
+
+
+
+NoSQL databases - non-relational databases
+
+
+
+Layered Architecture:
+- Presentation Layer [closed]
+- Business Layer [closed]
+- Service Layer [open]
+- Persistence Layer [closed]
+- Data Layer [closed]
+
++ separation of concerns
++ separation of types of components
+
+closed - request must always go through the layer
+open   - request must go through the layer only if it has added value. Otherwise: sinkhole anti-pattern
+
+Open layers are discouraged in favor of designing the system without compromising the architecture.
+
+
+MVC:
+User Input -> Controller -> Updates MODEL and VIEW
+
+Model      - business and data model
+View       - displays the data received from the Controller
+Controller - processes incoming data through Model and returns result to View, acts as a mediator
+Model <Observer or Pub/Sub> View
+
+MVP:
+Model      - business and data model
+View       - displays the data received from the Controller
+Presenter  - receives input from View, processes through Model and returns to View
+
+View AND Presenter are tightly coupled
+View -> Presenter -> Model -> Presenter -> View
+
+
+SAGA -optional

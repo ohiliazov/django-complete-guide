@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    My Blog
+{% endblock %}
+
+{% block css_files %}
+    <link rel="stylesheet" href="{% static "blog/post.css" %}">
+    <link rel="stylesheet" href="{% static "blog/index.css" %}">
+{% endblock %}
+
+{% block content %}
+    <section id="welcome">
+        <header>
+            <img src="{% static "blog/images/me.jpg" %}" alt="Oleksandr - The Author of This Blog">
+            <h2>OLEKSANDR'S BLOG</h2>
+        </header>
+        <p>Hi, I am Oleksandr and I love to blog about Go!</p>
+    </section>
+    <section id="latest-posts">
+        <h2>My Latest Thoughts</h2>
+        <ul>
+            {% for post in posts %}
+                {% include "blog/includes/post.html" %}
+            {% endfor %}
+        </ul>
+    </section>
+    <section id="about">
+        <h2>What I Do</h2>
+        <p>
+            I love coding, play Go and basketball!
+        </p>
+        <p>
+            My goal is to keep growing as a developer - and if I could help you to get stronger at Go!
+        </p>
+    </section>
+
+{% endblock %}
