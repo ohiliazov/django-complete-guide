@@ -1,48 +1,78 @@
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from django.urls import reverse
+from django.views import View
 from django.views.generic import ListView
+
+from .forms import CommentForm
 from .models import Post
 
-posts = []
 
-
-def get_date(post: dict):
-    return post.get("date")
-
-
-def starting_page(request):
-    latest_posts = Post.objects.all().order_by("-date")[:3]
-    return render(
-        request,
-        "blog/index.html",
-        context={"posts": latest_posts},
-    )
-
-
-class StartPageView(ListView):
-    template_name = "blog/all-posts.html"
+class StartingPageView(ListView):
+    context_object_name = "posts"
     model = Post
+    ordering = ["-date"]
+    template_name = "blog/index.html"
 
-    def get_ordering(self):
-        pass
-
-
-def posts_page(request):
-    posts = Post.objects.all().order_by("-date")
-    return render(
-        request,
-        "blog/all-posts.html",
-        context={"posts": posts},
-    )
+    def get_queryset(self):
+        return super().get_queryset()[:3]
 
 
-def post_detail(request, slug: str):
-    post = get_object_or_404(Post, slug=slug)
+class AllPostsView(ListView):
+    context_object_name = "posts"
+    model = Post
+    template_name = "blog/all-posts.html"
+    ordering = ["-date"]
 
-    return render(
-        request,
-        "blog/post-detail.html",
-        context={
-            "post": post,
-            "post_tags": post.tags.all(),
-        },
-    )
+
+class SinglePostView(View):
+    def get(self, request, slug):
+        post = Post.objects.get(slug=slug)
+        return render(
+            request,
+            "blog/post-detail.html",
+            {
+                "post": post,
+                "post_tags": post.tags.all(),
+                "comments": post.comments.order_by("-id").all(),
+                "comment_form": CommentForm(),
+            },
+        )
+
+    def post(self, request, slug):
+        comment_form = CommentForm(request.POST)
+        post = Post.objects.get(slug=slug)
+
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.post = post
+            comment.save()
+
+            return HttpResponseRedirect(
+                reverse(
+                    "post-detail-page",
+                    args=[slug],
+                )
+            )
+
+        return render(
+            request,
+            "blog/post-detail.html",
+            {
+                "post": post,
+                "post_tags": post.tags.all(),
+                "comments": post.comments.order_by("-id").all(),
+                "comment_form": comment_form,
+            },
+        )
+
+
+class ReadLaterView(View):
+    def post(self, request):
+        stored_posts = request.session.get("stored_posts", [])
+        post_id = int(request.POST["post_id"])
+
+        if post_id not in stored_posts:
+            stored_posts.append(post_id)
+
+        return HttpResponseRedirect("/")
