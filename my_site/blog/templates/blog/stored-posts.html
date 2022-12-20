@@ -10,11 +10,14 @@
 {% endblock %}
 
 {% block content %}
-  <section>
-  <ul>
-    {% for post in stored_posts %}
-      <li><a href="">Post title</a></li>
-    {% endfor %}
-  </ul>
+  <section id="stored-posts">
+    {% if not has_posts %}
+      <p>You didn't save any post for later.</p>
+    {% endif %}
+    <ul>
+      {% for post in posts %}
+        <li><a href="{% url "post-detail-page" post.slug %}">{{ post.title }}</a></li>
+      {% endfor %}
+    </ul>
   </section>
 {% endblock %}
